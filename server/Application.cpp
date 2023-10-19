@@ -5,8 +5,12 @@
 #include "quickfix/fix44/ExecutionReport.h"
 
 void Application::onCreate( const FIX::SessionID& sessionID ) {}
-void Application::onLogon( const FIX::SessionID& sessionID ) {}
-void Application::onLogout( const FIX::SessionID& sessionID ) {}
+void Application::onLogon( const FIX::SessionID& sessionID ) {
+    std::cout << "onLogon message" << std::endl;
+}
+void Application::onLogout( const FIX::SessionID& sessionID ) {
+    std::cout << "onLogout message" << std::endl;
+}
 void Application::toAdmin( FIX::Message& message,
                            const FIX::SessionID& sessionID ) {}
 void Application::toApp( FIX::Message& message,
@@ -14,7 +18,9 @@ void Application::toApp( FIX::Message& message,
 
 void Application::fromAdmin( const FIX::Message& message,
                              const FIX::SessionID& sessionID )
-throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon ) {}
+throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon ) {
+    std::cout << message.toString() << std::endl;
+}
 
 void Application::fromApp( const FIX::Message& message,
                            const FIX::SessionID& sessionID )

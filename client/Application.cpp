@@ -1,12 +1,16 @@
 
 #include "Application.h"
 
-void MyApplication::onLogon(const FIX::SessionID& sessionID) {
-    std::cout << std::endl << "Logon - " << sessionID << std::endl;
+void MyApplication::onCreate( const FIX::SessionID& sessionId) {
+    std::cout << std::endl << "Session created - " << sessionId << std::endl;
 }
 
-void MyApplication::onLogout( const FIX::SessionID& sessionID ) {
-    std::cout << std::endl << "Logout - " << sessionID << std::endl;
+void MyApplication::onLogon(const FIX::SessionID& sessionId) {
+    std::cout << std::endl << "Logon - " << sessionId << std::endl;
+}
+
+void MyApplication::onLogout( const FIX::SessionID& sessionId ) {
+    std::cout << std::endl << "Logout - " << sessionId << std::endl;
 }
 
 void queryEnterOrder() {};
@@ -14,10 +18,18 @@ void queryCancelOrder() {};
 void queryReplaceOrder() {};
 void queryMarketDataRequest() {};
 
+void MyApplication::toAdmin( FIX::Message& message, const FIX::SessionID& ) {
+    std::cout << "Message to Admin: " << std::endl;
+    if (message.getHeader().getField(35) == "A") {
+        message.getHeader().setField(554, "password");
+    }
+}
 
 void MyApplication::run() {
     while (true) {
         try {
+
+
             char action = queryAction();
 
             if ( action == '1' )
@@ -70,4 +82,8 @@ void MyApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionI
     catch ( FIX::FieldNotFound& ) {}
 
     std::cout << std::endl << "OUT: " << message << std::endl;
+}
+
+void MyApplication::onMessage( const FIX44::Logon& message, const FIX::SessionID& ) {
+
 }
