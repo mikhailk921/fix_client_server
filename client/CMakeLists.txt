@@ -1,7 +1,24 @@
 
-file( GLOB SOURCE_FILES  lib/*.cpp )
-file( GLOB SOURCE_HEADERS lib/*.hpp )
+# file( GLOB SOURCE_FILES  lib/*.cpp )
+# file( GLOB SOURCE_HEADERS lib/*.hpp )
 
-add_executable( client client.cpp )
+set(CMAKE_WARN_DEPRECATED TRUE)
 
-target_link_libraries(client PRIVATE quickfix)
+
+# add_library(quickfix SHARED IMPORTED)
+# set_property(TARGET quickfix PROPERTY
+#         IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/lib/libquickfix.so"
+#         )
+# set_target_properties(quickfix PROPERTIES
+#         PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include"
+#         )
+
+
+add_executable( client client.cpp client.hpp Application.h Application.cpp)
+
+target_include_directories(client PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
+target_link_libraries(client PUBLIC quickfix)
+
+configure_file("client_config.cfg" "${CMAKE_CURRENT_BINARY_DIR}/client_config.cfg" COPYONLY)
+configure_file("${PROJECT_SOURCE_DIR}/thirdparty/quickfix/share/quickfix/FIX44.xml"
+               "${CMAKE_CURRENT_BINARY_DIR}/spec/FIX44.xml" COPYONLY)
