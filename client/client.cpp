@@ -28,6 +28,15 @@ int main() {
 
     // Start client
     initiator->start();
+
+    auto sessionId = *initiator->getSessions().begin();
+    auto session = initiator->getSession(sessionId);
+//    const auto testRequest = application.prepareTestRequest44();
+//    FIX::SendingTime st;
+//    testRequest.getHeader().getField(st);
+//    std::cout << "UTC timestamp: " << st << std::endl;
+//    session->next(testRequest, st);
+
     application.run();
     initiator->stop();
 

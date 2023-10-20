@@ -64,3 +64,19 @@ throw( FIX::DoNotSend ) {
 
     std::cout << std::endl << "OUT: " << message << std::endl;
 }
+
+FIX::Message createAdminMessage(int sequence) {
+    FIX44::TestRequest msg(FIX::TestReqID("ID"));
+
+    msg.getHeader().setField(FIX::FIELD::SenderCompID, "TARGET");
+    msg.getHeader().setField(FIX::FIELD::TargetCompID, "SENDER");
+    msg.getHeader().setField(FIX::FIELD::MsgSeqNum, FIX::IntConvertor::convert(sequence));
+    // msg.getHeader().setField(FIX::FIELD::SendingTime, FIX::time_localtime(FIX::time_gmtime("3"))) .setUtcTimeStamp(, LocalDateTime.now(ZoneOffset.UTC));
+    return msg;
+}
+
+FIX44::TestRequest MyClientApplication::prepareTestRequest44()
+{
+    FIX44::TestRequest testRequest = createAdminMessage(2);
+    return testRequest;
+}

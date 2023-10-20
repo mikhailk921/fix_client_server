@@ -3,6 +3,8 @@
 
 #include <map>
 
+#include "logger.h"
+
 #include "quickfix/Application.h"
 #include "quickfix/MessageCracker.h"
 #include "quickfix/Values.h"
@@ -13,7 +15,7 @@
 
 class MyServerApplication: public FIX::Application, public FIX::MessageCracker {
 public:
-    MyServerApplication(): _test_value(0) {}
+    MyServerApplication(): logger(Logger("Server", LogLevel::Info)) {};
 
     // Application overloads
     void onCreate( const FIX::SessionID& ) override;
@@ -28,13 +30,8 @@ public:
     void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
     throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
 
-    std::string getTestValue() {
-        return std::to_string(++_test_value);
-    }
 private:
     bool isUserRegistered(std::string& username, std::string& pass);
-
-    int _test_value;
 
     std::map<std::string, std::string> _registrated_users = {
             {"admin", "admin"},
@@ -43,4 +40,5 @@ private:
             {"user2", "userpass"},
     };
 
+    Logger logger;
 };

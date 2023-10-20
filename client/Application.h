@@ -11,6 +11,7 @@
 #include "quickfix/fix44/OrderCancelReject.h"
 #include "quickfix/fix44/OrderCancelReplaceRequest.h"
 #include "quickfix/fix44/MarketDataRequest.h"
+#include "quickfix/fix44/TestRequest.h"
 
 
 class MyClientApplication : public FIX::Application, public FIX::MessageCracker {
@@ -30,6 +31,8 @@ public:
 
     void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
     throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
+
+    FIX44::TestRequest prepareTestRequest44();
 
     char queryAction();
 

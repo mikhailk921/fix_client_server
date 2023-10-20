@@ -1,6 +1,6 @@
 
 
-add_executable( server server.cpp server.hpp Application.h Application.cpp)
+add_executable( server server.cpp server.hpp Application.h Application.cpp logger.h)
 
 if (WIN32)
     target_include_directories(server PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/include")
