@@ -2,14 +2,12 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 project(FIX_client_server)
 
+# Disable warnings about deprecated functions
+add_compile_options("-Wno-deprecated")
 
 #
 # Sub-directories
 #
-
-
-# add_subdirectory(thirdparty)
-
 
 add_library(quickfix SHARED IMPORTED)
 set_property(TARGET quickfix PROPERTY
@@ -18,7 +16,6 @@ set_property(TARGET quickfix PROPERTY
 set_target_properties(quickfix PROPERTIES
         PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include"
         )
-
 
 #
 # client

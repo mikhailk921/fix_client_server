@@ -13,21 +13,21 @@
 #include "quickfix/fix44/MarketDataRequest.h"
 
 
-class MyApplication : public FIX::Application, public FIX::MessageCracker {
+class MyClientApplication : public FIX::Application, public FIX::MessageCracker {
 public:
     void run();
-    void onCreate( const FIX::SessionID& sessionId);
-    void onLogon( const FIX::SessionID& sessionID );
-    void onLogout( const FIX::SessionID& sessionID );
+    void onCreate( const FIX::SessionID& sessionId) override;
+    void onLogon( const FIX::SessionID& sessionID ) override;
+    void onLogout( const FIX::SessionID& sessionID ) override;
 
-    void toAdmin( FIX::Message& message, const FIX::SessionID& );
-    void toApp( FIX::Message&, const FIX::SessionID& ) throw( FIX::DoNotSend );
+    void toAdmin( FIX::Message& message, const FIX::SessionID& ) override;
+    void toApp( FIX::Message&, const FIX::SessionID& ) throw( FIX::DoNotSend ) override;
 
-    void fromAdmin( const FIX::Message&, const FIX::SessionID& ) throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon ) {};
-    void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID ) throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType );
+    void fromAdmin( const FIX::Message&, const FIX::SessionID& )
+    throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon ) override {};
 
-    void onMessage( const FIX44::Logon& message, const FIX::SessionID& );
+    void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
+    throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
 
     char queryAction();
 };
-

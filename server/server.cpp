@@ -9,12 +9,10 @@
 #include <iostream>
 #include <memory>
 
-void wait(std::unique_ptr<FIX::Acceptor>& acceptor) {
-    std::cout << "Type Ctrl-C to quit" << std::endl;
+void wait([[maybe_unused]] std::unique_ptr<FIX::Acceptor>& acceptor) {
+    std::cout << "The server was started" << std::endl;
     while(true) {
         FIX::process_sleep(1);
-        if (acceptor->isLoggedOn())
-            std::cout << "Check loggin: " << acceptor->isLoggedOn() << std::endl  << std::endl;
     }
 }
 

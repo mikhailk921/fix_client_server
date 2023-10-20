@@ -26,9 +26,6 @@ public:
     void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
     throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType );
 
-    // MessageCracker overloads
-    void onMessage( const FIX44::NewOrderSingle&, const FIX::SessionID& );
-
     std::string genOrderID() {
         return std::to_string(++m_orderID);
     }
