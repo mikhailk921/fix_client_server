@@ -4,19 +4,14 @@
 
 set(CMAKE_WARN_DEPRECATED TRUE)
 
-
-# add_library(quickfix SHARED IMPORTED)
-# set_property(TARGET quickfix PROPERTY
-#         IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/lib/libquickfix.so"
-#         )
-# set_target_properties(quickfix PROPERTIES
-#         PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include"
-#         )
-
-
 add_executable( client client.cpp client.hpp Application.h Application.cpp)
 
-target_include_directories(client PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
+if (WIN32)
+    target_include_directories(client PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/include")
+else()
+    target_include_directories(client PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
+endif()
+
 target_link_libraries(client PUBLIC quickfix)
 
 configure_file("client_config.cfg" "${CMAKE_CURRENT_BINARY_DIR}/client_config.cfg" COPYONLY)

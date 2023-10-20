@@ -2,7 +2,12 @@
 
 add_executable( server server.cpp server.hpp Application.h Application.cpp)
 
-target_include_directories(server PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
+if (WIN32)
+    target_include_directories(server PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/include")
+else()
+    target_include_directories(server PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
+endif()
+
 target_link_libraries(server PUBLIC quickfix)
 
 configure_file("server_config.cfg" "${CMAKE_CURRENT_BINARY_DIR}/server_config.cfg" COPYONLY)

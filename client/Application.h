@@ -15,6 +15,8 @@
 
 class MyClientApplication : public FIX::Application, public FIX::MessageCracker {
 public:
+    MyClientApplication(std::string username, std::string pass): _username(username), _userpass(pass) {};
+
     void run();
     void onCreate( const FIX::SessionID& sessionId) override;
     void onLogon( const FIX::SessionID& sessionID ) override;
@@ -30,4 +32,8 @@ public:
     throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
 
     char queryAction();
+
+private:
+    std::string _username;
+    std::string _userpass;
 };

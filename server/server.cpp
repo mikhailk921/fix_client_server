@@ -22,7 +22,7 @@ int main( int argc, char** argv ) {
 
         FIX::SessionSettings settings(confog_path);
 
-        Application serverApplication;
+        MyServerApplication serverApplication;
         FIX::FileStoreFactory storeFactory( settings );
         FIX::ScreenLogFactory logFactory( settings );
 

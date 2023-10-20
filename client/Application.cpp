@@ -15,8 +15,8 @@ void MyClientApplication::onLogout( const FIX::SessionID& sessionId ) {
 
 void MyClientApplication::toAdmin( FIX::Message& message, const FIX::SessionID& ) {
     if (FIX::MsgType_Logon == message.getHeader().getField(FIX::FIELD::MsgType)) {
-        message.getHeader().setField(FIX::Username("admin"));
-        message.getHeader().setField(FIX::Password("admin_passd"));
+        message.getHeader().setField(FIX::Username(_username));
+        message.getHeader().setField(FIX::Password(_userpass));
         std::cout << "Logon message: " << message.toString() << std::endl;
     }
 }

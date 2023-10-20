@@ -10,12 +10,22 @@ add_compile_options("-Wno-deprecated")
 #
 
 add_library(quickfix SHARED IMPORTED)
-set_property(TARGET quickfix PROPERTY
-        IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/lib/libquickfix.so"
-        )
-set_target_properties(quickfix PROPERTIES
-        PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include"
-        )
+
+if (WIN32)
+    set_property(TARGET quickfix PROPERTY
+            IMPORTED_IMPLIB "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/lib/quickfix.lib"
+            )
+    set_target_properties(quickfix PROPERTIES
+            PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/include"
+            )
+else()
+    set_property(TARGET quickfix PROPERTY
+            IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/lib/libquickfix.so"
+            )
+    set_target_properties(quickfix PROPERTIES
+            PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include"
+            )
+endif()
 
 #
 # client
