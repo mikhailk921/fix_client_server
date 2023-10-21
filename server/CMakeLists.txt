@@ -1,5 +1,4 @@
 
-
 add_executable( server server.cpp server.hpp Application.h Application.cpp logger.h)
 
 if (WIN32)

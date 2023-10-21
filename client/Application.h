@@ -32,11 +32,14 @@ public:
     void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
     throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
 
-    FIX44::TestRequest prepareTestRequest44();
+    void sendTestRequest44(const FIX::Session& session);
+    void sendTestMessage(FIX::Session& session);
 
     char queryAction();
 
 private:
     std::string _username;
     std::string _userpass;
+
+    int seqMessage = 1;
 };

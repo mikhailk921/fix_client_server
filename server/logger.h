@@ -3,8 +3,10 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <map>
 #include <unordered_map>
+#include <chrono>
+#include <filesystem>
+#include <sys/stat.h>
 
 
 //
@@ -32,6 +34,13 @@ const std::unordered_map<LogLevel, std::string> strLogLevelMap = {
         {LogLevel::Debug,   "Debug"},
 };
 
+static std::string timePointAsString(const std::chrono::system_clock::time_point& tp) {
+    std::time_t t = std::chrono::system_clock::to_time_t(tp);
+    std::string ts = std::ctime(&t);
+    ts.resize(ts.size()-1);
+    return ts;
+}
+
 
 //
 // Logger
@@ -41,7 +50,12 @@ class Logger {
 public:
     Logger(): _name("default"), _logLevel(LogLevel::None) {};
     Logger(std::string name, LogLevel lvl): _name(name), _logLevel(lvl) {
-        filename =  _name, ".log";
+        std::string logsFolder = "logs";
+        mkdir(logsFolder.c_str(), 0777);
+        auto timestamp = std::time(nullptr);
+        filename =  logsFolder + "/" + _name + "_" + std::to_string(timestamp) + ".log";
+        std::cout << "File name: " << filename << std::endl;
+        std::ofstream loggerFile(filename);
     };
 
     auto name() const {
@@ -61,31 +75,35 @@ public:
     };
 
 public:
-    void fatal(std::string& message) {
-        addEntryMessage(LogLevel::Fatal, message);
+    void fatal(std::string& message, bool printToCout=false) {
+        addEntryMessage(LogLevel::Fatal, message, printToCout);
     };
 
-    void error(std::string& message) {
-        addEntryMessage(LogLevel::Error, message);
+    void error(std::string& message, bool printToCout=false) {
+        addEntryMessage(LogLevel::Error, message, printToCout);
     };
 
-    void warning(std::string message) {
-        addEntryMessage(LogLevel::Warning, message);
+    void warning(std::string message, bool printToCout=false) {
+        addEntryMessage(LogLevel::Warning, message, printToCout);
     };
 
-    void info(std::string message) {
-        addEntryMessage(LogLevel::Info, message);
+    void info(std::string message, bool printToCout=false) {
+        addEntryMessage(LogLevel::Info, message, printToCout);
     };
 
-    void debug(std::string message) {
-        addEntryMessage(LogLevel::Debug, message);
+    void debug(std::string message, bool printToCout=false) {
+        addEntryMessage(LogLevel::Debug, message, printToCout);
     };
 
 private:
-    void addEntryMessage(LogLevel msgLevel, std::string& message) {
-        std::fstream logfile(filename, std::fstream::in);
-        logfile << strLogLevelMap.at(msgLevel), ": ", message, "\n";
-        logfile.close();
+    void addEntryMessage(LogLevel msgLevel, std::string& message, bool printToCout) {
+        auto mess = timePointAsString(std::chrono::system_clock::now()) \
+                          + ": " + strLogLevelMap.at(msgLevel) + ": " + message + "\n";
+        std::ofstream loggerFile(filename, std::ios_base::app);
+        loggerFile << mess;
+        loggerFile.close();
+        if (printToCout)
+            std::cout << mess << std::endl;
     };
 
     std::string _name;

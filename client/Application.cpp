@@ -13,7 +13,7 @@ void MyClientApplication::onLogout( const FIX::SessionID& sessionId ) {
     std::cout << std::endl << "Logout - " << sessionId << std::endl;
 }
 
-void MyClientApplication::toAdmin( FIX::Message& message, const FIX::SessionID& ) {
+void MyClientApplication::toAdmin( FIX::Message& message, const FIX::SessionID& sess) {
     if (FIX::MsgType_Logon == message.getHeader().getField(FIX::FIELD::MsgType)) {
         message.getHeader().setField(FIX::Username(_username));
         message.getHeader().setField(FIX::Password(_userpass));
@@ -65,18 +65,31 @@ throw( FIX::DoNotSend ) {
     std::cout << std::endl << "OUT: " << message << std::endl;
 }
 
-FIX::Message createAdminMessage(int sequence) {
-    FIX44::TestRequest msg(FIX::TestReqID("ID"));
 
-    msg.getHeader().setField(FIX::FIELD::SenderCompID, "TARGET");
-    msg.getHeader().setField(FIX::FIELD::TargetCompID, "SENDER");
-    msg.getHeader().setField(FIX::FIELD::MsgSeqNum, FIX::IntConvertor::convert(sequence));
-    // msg.getHeader().setField(FIX::FIELD::SendingTime, FIX::time_localtime(FIX::time_gmtime("3"))) .setUtcTimeStamp(, LocalDateTime.now(ZoneOffset.UTC));
-    return msg;
+void MyClientApplication::sendTestRequest44(const FIX::Session& session) {
+    FIX44::TestRequest testRequest(FIX::TestReqID("ID"));
+
+    testRequest.getHeader().setField(FIX::FIELD::SenderCompID, "TARGET");
+    testRequest.getHeader().setField(FIX::FIELD::TargetCompID, "SENDER");
+    testRequest.getHeader().setField( FIX::SendingTime());
+
+    std::cout << "Send new message: TestRequest" << std::endl;
+    FIX::Session::sendToTarget(testRequest, session.getSessionID());
 }
 
-FIX44::TestRequest MyClientApplication::prepareTestRequest44()
-{
-    FIX44::TestRequest testRequest = createAdminMessage(2);
-    return testRequest;
+void MyClientApplication::sendTestMessage(FIX::Session& session) {
+    const FIX::ClOrdID clOrdID("342");
+    const FIX::Side side(FIX::Side_BUY);
+    const FIX::TransactTime transactTime = FIX::UtcTimeStamp();
+    const FIX::OrdType aOrdType(FIX::OrdType_MARKET);
+
+    FIX44::NewOrderSingle newOrder(clOrdID, side, transactTime, aOrdType);
+
+    newOrder.getHeader().setField(session.getSessionID().getSenderCompID());
+    newOrder.getHeader().setField(session.getSessionID().getTargetCompID());
+    newOrder.getHeader().setField( FIX::SendingTime() );
+    newOrder.getHeader().setField( FIX::MsgSeqNum(seqMessage) );
+
+    std::cout << "Send new message: NewOrderSingle" << std::endl;
+    FIX::Session::sendToTarget(newOrder, session.getSessionID());
 }

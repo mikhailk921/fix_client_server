@@ -8,6 +8,8 @@
 #include "quickfix/FileStore.h"
 #include "quickfix/FileLog.h"
 
+
+
 int main() {
     const std::string confog_path = "client_config.cfg";
 
@@ -30,6 +32,10 @@ int main() {
     initiator->start();
 
     auto sessionId = *initiator->getSessions().begin();
+    while(initiator->getSession(sessionId) == nullptr) {
+        FIX::process_sleep(1);
+    }
+    std::cout << "Session successfully connected!" << std::endl;
     auto session = initiator->getSession(sessionId);
 //    const auto testRequest = application.prepareTestRequest44();
 //    FIX::SendingTime st;
@@ -37,7 +43,10 @@ int main() {
 //    std::cout << "UTC timestamp: " << st << std::endl;
 //    session->next(testRequest, st);
 
+    // application.sendTestMessage(*session);
+    application.sendTestRequest44(*session);
     application.run();
+
     initiator->stop();
 
 }

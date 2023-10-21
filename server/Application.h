@@ -12,6 +12,7 @@
 #include "quickfix/Mutex.h"
 
 #include "quickfix/fix44/NewOrderSingle.h"
+#include "quickfix/fix44/TestRequest.h"
 
 class MyServerApplication: public FIX::Application, public FIX::MessageCracker {
 public:
@@ -30,7 +31,10 @@ public:
     void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
     throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
 
+    void onMessage( const FIX44::TestRequest& message, const FIX::SessionID& sessionID);
+
 private:
+    void replyToTestRequest(const FIX::SessionID& sessionID);
     bool isUserRegistered(std::string& username, std::string& pass);
 
     std::map<std::string, std::string> _registrated_users = {
