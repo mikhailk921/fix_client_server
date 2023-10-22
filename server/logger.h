@@ -51,7 +51,10 @@ public:
     Logger(): _name("default"), _logLevel(LogLevel::None) {};
     Logger(std::string name, LogLevel lvl): _name(name), _logLevel(lvl) {
         std::string logsFolder = "logs";
-        mkdir(logsFolder.c_str(), 0777);
+        auto status = mkdir(logsFolder.c_str(), 0777);
+        if (status and status != -1) {
+            throw std::runtime_error("Error creating director: " + logsFolder + "; Status: " + std::to_string(status));
+        }
         auto timestamp = std::time(nullptr);
         filename =  logsFolder + "/" + _name + "_" + std::to_string(timestamp) + ".log";
         std::cout << "File name: " << filename << std::endl;

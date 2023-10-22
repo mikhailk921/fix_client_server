@@ -11,7 +11,6 @@
 #include "quickfix/Utility.h"
 #include "quickfix/Mutex.h"
 
-#include "quickfix/fix44/NewOrderSingle.h"
 #include "quickfix/fix44/TestRequest.h"
 
 class MyServerApplication: public FIX::Application, public FIX::MessageCracker {

@@ -8,7 +8,12 @@
 #include "quickfix/FileStore.h"
 #include "quickfix/FileLog.h"
 
-
+void wait() {
+    std::cout << "The client was started" << std::endl;
+    while(true) {
+        FIX::process_sleep(1);
+    }
+}
 
 int main() {
     const std::string confog_path = "client_config.cfg";
@@ -37,17 +42,8 @@ int main() {
     }
     std::cout << "Session successfully connected!" << std::endl;
     auto session = initiator->getSession(sessionId);
-//    const auto testRequest = application.prepareTestRequest44();
-//    FIX::SendingTime st;
-//    testRequest.getHeader().getField(st);
-//    std::cout << "UTC timestamp: " << st << std::endl;
-//    session->next(testRequest, st);
 
-    // application.sendTestMessage(*session);
     application.sendTestRequest44(*session);
-    application.run();
-
+    wait();
     initiator->stop();
-
 }
-

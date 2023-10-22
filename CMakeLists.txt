@@ -14,15 +14,17 @@ endif()
 add_library(quickfix SHARED IMPORTED)
 
 if (WIN32)
+    set(QUICKFIX_LIB_PATH "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/lib/quickfix.lib")
     set_property(TARGET quickfix PROPERTY
-            IMPORTED_IMPLIB "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/lib/quickfix.lib"
+            IMPORTED_IMPLIB "${QUICKFIX_LIB_PATH}"
             )
     set_target_properties(quickfix PROPERTIES
             PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/include"
             )
 else()
+    set(QUICKFIX_LIB_PATH "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/lib/libquickfix.so")
     set_property(TARGET quickfix PROPERTY
-            IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/lib/libquickfix.so"
+            IMPORTED_LOCATION "${QUICKFIX_LIB_PATH}"
             )
     set_target_properties(quickfix PROPERTIES
             PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include"
@@ -30,7 +32,7 @@ else()
 endif()
 
 #
-# client
+# client and server
 #
 
 add_subdirectory(client)
