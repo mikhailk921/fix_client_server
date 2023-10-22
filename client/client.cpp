@@ -1,24 +1,31 @@
-#include <iostream>
-
-
-#include "client.hpp"
 #include "Application.h"
 #include "quickfix/Initiator.h"
 #include "quickfix/SocketInitiator.h"
 #include "quickfix/FileStore.h"
 #include "quickfix/FileLog.h"
 
+#include <iostream>
+
 void wait() {
-    std::cout << "The client was started" << std::endl;
     while(true) {
         FIX::process_sleep(1);
     }
 }
 
-int main() {
-    const std::string confog_path = "client_config.cfg";
+int main(int argc, char** argv) {
+    std::string config_path;
+    if ( argc > 2 ) {
+        throw std::runtime_error("Unexpected number of arguments. "
+                                 "Expecting one argument, received: " + std::to_string(argc - 1));
+    } else if ( argc == 2 ) {
+        std::cout << "Client config file path: " << argv[ 1 ] << std::endl;
+        config_path = argv[ 1 ];
+    } else {
+        std::cout << "Using default config file" << std::endl;
+        config_path = "client_config.cfg";
+    }
 
-    FIX::SessionSettings settings(confog_path);
+    FIX::SessionSettings settings(config_path);
     FIX::FileStoreFactory storeFactory(settings);
     FIX::ScreenLogFactory logFactory(settings);
 
@@ -42,7 +49,10 @@ int main() {
     }
     std::cout << "Session successfully connected!" << std::endl;
     auto session = initiator->getSession(sessionId);
-
+    while(!session->isLoggedOn()) {
+        FIX::process_sleep(1);
+        std::cout << "Waiting Logon" << std::endl;
+    }
     application.sendTestRequest44(*session);
     wait();
     initiator->stop();

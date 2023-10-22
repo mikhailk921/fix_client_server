@@ -27,6 +27,14 @@ cd "<project_folder>/bin/server"
 LD_LIBRARY_PATH=./ ./server
 ```
 
+If you need to use a specific configuration file, then the executable file has an optional parameter - the path to the configuration file.
+For this, run the following command:
+
+```bash
+cd "<project_folder>/bin/server"
+LD_LIBRARY_PATH=./ ./server <path_to_config_file>
+```
+
 The server contains a logger. Logging is performed for each message and the result is saved in the `server/logs` folder.
 
 ### Client
@@ -40,6 +48,14 @@ To start the server run the following command:
 ```bash
 cd "<project_folder>/bin/client"
 LD_LIBRARY_PATH=./ ./client
+```
+
+If you need to use a specific configuration file, then the executable file has an optional parameter - the path to the configuration file.
+For this, run the following command:
+
+```bash
+cd "<project_folder>/bin/client"
+LD_LIBRARY_PATH=./ ./client <path_to_config_file>
 ```
 
 ### Quickfix

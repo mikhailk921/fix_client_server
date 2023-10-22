@@ -1,16 +1,9 @@
 
 set(CLIENT_TARGET "client" CACHE INTERNAL "")
 
-set(CMAKE_WARN_DEPRECATED TRUE)
+add_executable( ${CLIENT_TARGET} client.cpp Application.h Application.cpp)
 
-add_executable( ${CLIENT_TARGET} client.cpp client.hpp Application.h Application.cpp)
-
-if (WIN32)
-    target_include_directories(${CLIENT_TARGET} PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/include")
-else()
-    target_include_directories(${CLIENT_TARGET} PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
-endif()
-
+target_include_directories(${CLIENT_TARGET} PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
 target_link_libraries(${CLIENT_TARGET} PUBLIC quickfix)
 
 configure_file("client_config.cfg" "${CMAKE_CURRENT_BINARY_DIR}/client_config.cfg" COPYONLY)

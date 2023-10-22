@@ -1,4 +1,3 @@
-
 #include "quickfix/FileStore.h"
 #include "quickfix/SocketAcceptor.h"
 #include "quickfix/Log.h"
@@ -16,11 +15,21 @@ void wait([[maybe_unused]] std::unique_ptr<FIX::Acceptor>& acceptor) {
     }
 }
 
-int main( int argc, char** argv ) {
+int main(int argc, char** argv) {
     try {
-        const std::string confog_path = "server_config.cfg";
+        std::string config_path;
+        if ( argc > 2 ) {
+            throw std::runtime_error("Unexpected number of arguments. "
+                                     "Expecting one argument, received: " + std::to_string(argc - 1));
+        } else if ( argc == 2 ) {
+            std::cout << "Server config file path: " << argv[ 1 ] << std::endl;
+            config_path = argv[ 1 ];
+        } else {
+            std::cout << "Using default config file" << std::endl;
+            config_path = "server_config.cfg";
+        }
 
-        FIX::SessionSettings settings(confog_path);
+        FIX::SessionSettings settings(config_path);
 
         MyServerApplication serverApplication;
         FIX::FileStoreFactory storeFactory( settings );

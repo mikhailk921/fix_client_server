@@ -3,33 +3,20 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(FIX_client_server)
 
 # Disable warnings about deprecated functions
-if (NOT WIN32)
-    add_compile_options("-Wno-deprecated")
-endif()
+add_compile_options("-Wno-deprecated")
+
 
 #
 # Sub-directories
 #
 
 add_library(quickfix SHARED IMPORTED)
-
-if (WIN32)
-    set(QUICKFIX_LIB_PATH "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/lib/quickfix.lib")
-    set_property(TARGET quickfix PROPERTY
-            IMPORTED_IMPLIB "${QUICKFIX_LIB_PATH}"
-            )
-    set_target_properties(quickfix PROPERTIES
-            PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/include"
-            )
-else()
-    set(QUICKFIX_LIB_PATH "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/lib/libquickfix.so")
-    set_property(TARGET quickfix PROPERTY
-            IMPORTED_LOCATION "${QUICKFIX_LIB_PATH}"
-            )
-    set_target_properties(quickfix PROPERTIES
-            PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include"
-            )
-endif()
+set_property(TARGET quickfix PROPERTY
+        IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/lib/libquickfix.so"
+        )
+set_target_properties(quickfix PROPERTIES
+        PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include"
+        )
 
 #
 # client and server

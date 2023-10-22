@@ -1,14 +1,9 @@
 
 set(SERVER_TARGET "server" CACHE INTERNAL "")
 
-add_executable( ${SERVER_TARGET} server.cpp server.hpp Application.h Application.cpp logger.h)
+add_executable( ${SERVER_TARGET} server.cpp Application.h Application.cpp logger.h)
 
-if (WIN32)
-    target_include_directories(${SERVER_TARGET} PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix_win/include")
-else()
-    target_include_directories(${SERVER_TARGET} PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
-endif()
-
+target_include_directories(${SERVER_TARGET} PUBLIC "${PROJECT_SOURCE_DIR}/thirdparty/quickfix/include")
 target_link_libraries(${SERVER_TARGET} PUBLIC quickfix)
 
 configure_file("server_config.cfg" "${CMAKE_CURRENT_BINARY_DIR}/server_config.cfg" COPYONLY)
