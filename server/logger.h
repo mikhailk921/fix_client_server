@@ -57,7 +57,7 @@ public:
         }
         auto timestamp = std::time(nullptr);
         filename =  logsFolder + "/" + _name + "_" + std::to_string(timestamp) + ".log";
-        std::cout << "File name: " << filename << std::endl;
+        std::cout << "Log file name: " << filename << std::endl;
         std::ofstream loggerFile(filename);
     };
 
@@ -113,5 +113,3 @@ private:
     LogLevel _logLevel = LogLevel::None;
     std::string filename;
 };
-
-

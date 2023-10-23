@@ -15,7 +15,7 @@
 
 class MyServerApplication: public FIX::Application, public FIX::MessageCracker {
 public:
-    MyServerApplication(): logger(Logger("Server", LogLevel::Info)) {};
+    MyServerApplication(): logger(Logger("Server logger", LogLevel::Info)) {};
 
     // Application overloads
     void onCreate( const FIX::SessionID& ) override;
