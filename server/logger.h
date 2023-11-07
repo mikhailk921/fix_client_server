@@ -7,6 +7,13 @@
 #include <chrono>
 #include <filesystem>
 #include <sys/stat.h>
+#include <sstream>
+#include <utility>
+
+
+#define LOGGER_PRINT_TO_OUT true
+#define LOGGER_DONT_PRINT_TO_OUT false
+#define MAX_BUFFER_MESSAGE_COUNT 10
 
 
 //
@@ -49,7 +56,7 @@ static std::string timePointAsString(const std::chrono::system_clock::time_point
 class Logger {
 public:
     Logger(): _name("default"), _logLevel(LogLevel::None) {};
-    Logger(std::string name, LogLevel lvl): _name(name), _logLevel(lvl) {
+    Logger(std::string  name, const LogLevel& lvl): _name(std::move(name)), _logLevel(lvl) {
         std::string logsFolder = "logs";
         auto status = mkdir(logsFolder.c_str(), 0777);
         if (status and status != -1) {
@@ -60,6 +67,10 @@ public:
         std::cout << "Log file name: " << filename << std::endl;
         std::ofstream loggerFile(filename);
     };
+
+    virtual ~Logger() {
+        writeBufferToFile();
+    }
 
     auto name() const {
         return _name;
@@ -73,43 +84,56 @@ public:
         return _logLevel;
     };
 
-    void setLevel(LogLevel lvl) {
+    void setLevel(LogLevel& lvl) {
         _logLevel = lvl;
     };
 
 public:
-    void fatal(std::string& message, bool printToCout=false) {
+    void fatal(const std::string& message, bool printToCout=LOGGER_DONT_PRINT_TO_OUT) {
         addEntryMessage(LogLevel::Fatal, message, printToCout);
     };
 
-    void error(std::string& message, bool printToCout=false) {
+    void error(const std::string& message, bool printToCout=LOGGER_DONT_PRINT_TO_OUT) {
         addEntryMessage(LogLevel::Error, message, printToCout);
     };
 
-    void warning(std::string message, bool printToCout=false) {
+    void warning(const std::string& message, bool printToCout=LOGGER_DONT_PRINT_TO_OUT) {
         addEntryMessage(LogLevel::Warning, message, printToCout);
     };
 
-    void info(std::string message, bool printToCout=false) {
+    void info(const std::string& message, bool printToCout=LOGGER_DONT_PRINT_TO_OUT) {
         addEntryMessage(LogLevel::Info, message, printToCout);
     };
 
-    void debug(std::string message, bool printToCout=false) {
+    void debug(const std::string& message, bool printToCout=LOGGER_DONT_PRINT_TO_OUT) {
         addEntryMessage(LogLevel::Debug, message, printToCout);
     };
 
 private:
-    void addEntryMessage(LogLevel msgLevel, std::string& message, bool printToCout) {
-        auto mess = timePointAsString(std::chrono::system_clock::now()) \
-                          + ": " + strLogLevelMap.at(msgLevel) + ": " + message + "\n";
+    void writeBufferToFile() {
         std::ofstream loggerFile(filename, std::ios_base::app);
-        loggerFile << mess;
+        loggerFile << outStringBuffer.str();
         loggerFile.close();
-        if (printToCout)
+    }
+
+    void addEntryMessage(const LogLevel msgLevel, const std::string& message, const bool printToCout) {
+        std::string mess = timePointAsString(std::chrono::system_clock::now()) \
+                          + ": " + strLogLevelMap.at(msgLevel) + ": " + message + "\n";
+        if (printToCout) {
             std::cout << mess << std::endl;
+        }
+        outStringBuffer << mess;
+        bufferMessageCount++;
+        if (bufferMessageCount >= MAX_BUFFER_MESSAGE_COUNT) {
+            writeBufferToFile();
+            bufferMessageCount = 0;
+            outStringBuffer.clear();
+        }
     };
 
     std::string _name;
     LogLevel _logLevel = LogLevel::None;
     std::string filename;
+    std::stringstream outStringBuffer;
+    u_int32_t bufferMessageCount = 0;
 };

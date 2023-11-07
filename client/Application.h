@@ -24,13 +24,13 @@ public:
     void onLogout( const FIX::SessionID& sessionID ) override;
 
     void toAdmin( FIX::Message& message, const FIX::SessionID& ) override;
-    void toApp( FIX::Message&, const FIX::SessionID& ) throw( FIX::DoNotSend ) override;
+    void toApp( FIX::Message&, const FIX::SessionID& ) EXCEPT( FIX::DoNotSend ) override;
 
     void fromAdmin( const FIX::Message&, const FIX::SessionID& )
-    throw( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon ) override {};
+    EXCEPT( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon ) override {};
 
     void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
-    throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
+    EXCEPT ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
 
     void sendTestRequest44(const FIX::Session& session);
     void sendTestMessage(FIX::Session& session);

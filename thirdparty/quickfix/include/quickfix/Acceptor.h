@@ -50,9 +50,9 @@ class Acceptor
 {
 public:
   Acceptor( Application&, MessageStoreFactory&,
-            const SessionSettings& ) throw( ConfigError );
+            const SessionSettings& ) EXCEPT ( ConfigError );
   Acceptor( Application&, MessageStoreFactory&,
-            const SessionSettings&, LogFactory& ) throw( ConfigError );
+            const SessionSettings&, LogFactory& ) EXCEPT ( ConfigError );
 
   virtual ~Acceptor();
 
@@ -63,11 +63,11 @@ public:
   }
 
   /// Start acceptor.
-  void start() throw ( ConfigError, RuntimeError );
+  void start() EXCEPT ( ConfigError, RuntimeError );
   /// Block on the acceptor
-  void block() throw ( ConfigError, RuntimeError );
+  void block() EXCEPT ( ConfigError, RuntimeError );
   /// Poll the acceptor
-  bool poll( double timeout = 0.0 ) throw ( ConfigError, RuntimeError );
+  bool poll() EXCEPT ( ConfigError, RuntimeError );
 
   /// Stop acceptor.
   void stop( bool force = false );
@@ -91,23 +91,23 @@ public:
   { return m_messageStoreFactory; }
 
 private:
-  void initialize() throw ( ConfigError );
+  void initialize() EXCEPT ( ConfigError );
 
   /// Implemented to configure acceptor
-  virtual void onConfigure( const SessionSettings& ) throw ( ConfigError ) {};
+  virtual void onConfigure( const SessionSettings& ) EXCEPT ( ConfigError ) {};
   /// Implemented to initialize acceptor
-  virtual void onInitialize( const SessionSettings& ) throw ( RuntimeError ) {};
+  virtual void onInitialize( const SessionSettings& ) EXCEPT ( RuntimeError ) {};
   /// Implemented to start listening for connections.
   virtual void onStart() = 0;
   /// Implemented to connect and poll for events.
-  virtual bool onPoll( double second ) = 0;
+  virtual bool onPoll() = 0;
   /// Implemented to stop a running acceptor.
   virtual void onStop() = 0;
 
   static THREAD_PROC startThread( void* p );
 
-  typedef std::set < SessionID > SessionIDs;
-  typedef std::map < SessionID, Session* > Sessions;
+  typedef std::set<SessionID> SessionIDs;
+  typedef std::map<SessionID, Session*> Sessions;
 
   thread_id m_threadid;
   Sessions m_sessions;
@@ -120,8 +120,9 @@ private:
   LogFactory* m_pLogFactory;
   Log* m_pLog;
   NullLog m_nullLog;
-  bool m_firstPoll;
-  bool m_stop;
+  std::atomic<bool> m_processing;
+  std::atomic<bool> m_firstPoll;
+  std::atomic<bool> m_stop;
 };
 /*! @} */
 }

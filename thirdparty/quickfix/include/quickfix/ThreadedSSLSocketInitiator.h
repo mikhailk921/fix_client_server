@@ -137,10 +137,10 @@ class ThreadedSSLSocketInitiator : public Initiator
 {
 public:
   ThreadedSSLSocketInitiator(Application &, MessageStoreFactory &,
-                             const SessionSettings &) throw(ConfigError);
+                             const SessionSettings &) EXCEPT (ConfigError);
   ThreadedSSLSocketInitiator(Application &, MessageStoreFactory &,
                              const SessionSettings &,
-                             LogFactory &) throw(ConfigError);
+                             LogFactory &) EXCEPT (ConfigError);
 
   virtual ~ThreadedSSLSocketInitiator();
 
@@ -152,22 +152,22 @@ public:
     m_key = key;
   }
 
-  int passwordHandleCallback(char *buf, size_t bufsize, int verify, void *job);
+  int passwordHandleCallback(char *buf, size_t bufsize, int verify);
 
-  static int passwordHandleCB(char *buf, int bufsize, int verify, void *job);
+  static int passwordHandleCB(char *buf, int bufsize, int verify, void *instance);
 
 private:
-  typedef std::pair< int, SSL * > SocketKey;
-  typedef std::map< SocketKey, thread_id > SocketToThread;
-  typedef std::map< SessionID, int > SessionToHostNum;
-  typedef std::pair< ThreadedSSLSocketInitiator *,
-                     ThreadedSSLSocketConnection * > ThreadPair;
+  typedef std::pair<socket_handle, SSL *> SocketKey;
+  typedef std::map<SocketKey, thread_id> SocketToThread;
+  typedef std::map<SessionID, int> SessionToHostNum;
+  typedef std::pair<ThreadedSSLSocketInitiator *,
+                    ThreadedSSLSocketConnection *> ThreadPair;
 
-  void onConfigure(const SessionSettings &) throw(ConfigError);
-  void onInitialize(const SessionSettings &) throw(RuntimeError);
+  void onConfigure(const SessionSettings &) EXCEPT (ConfigError);
+  void onInitialize(const SessionSettings &) EXCEPT (RuntimeError);
 
   void onStart();
-  bool onPoll(double timeout);
+  bool onPoll();
   void onStop();
 
   void doConnect(const SessionID &s, const Dictionary &d);

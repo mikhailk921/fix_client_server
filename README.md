@@ -1,6 +1,6 @@
 # FIX client-server
 
-Implementation of FIX server and client based on the Quickfix library.
+Implementation of FIX server and client based on the latest master Quickfix library.
 
 ## = Build =
 
@@ -60,5 +60,5 @@ LD_LIBRARY_PATH=./ ./client <path_to_config_file>
 
 ### Quickfix
 
-The project uses the latest current version of the quickfix library - 1.15.1.
-The project uses the pre-built quickfix library. The library files are located in: `<project_folder>/thirdparty/quickfix`
+The project uses the latest master version of the quickfix library.
+The project uses the pre-built quickfix library. For build, gcc compiler version 9.4.0 was used. The library files are located in: `<project_folder>/thirdparty/quickfix`

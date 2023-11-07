@@ -48,24 +48,24 @@ public:
   static const std::string DEFAULT_CONNECTION_STRING;
 
   OdbcStoreFactory( const SessionSettings& settings )
-: m_settings( settings ), m_useSettings( true ), m_useDictionary( false ) {}
+  : m_settings( settings ), m_useSettings( true ), m_useDictionary( false ) {}
 
   OdbcStoreFactory( const Dictionary& dictionary )
-: m_dictionary( dictionary ), m_useSettings( false ), m_useDictionary( true ) {}
+  : m_dictionary( dictionary ), m_useSettings( false ), m_useDictionary( true ) {}
 
   OdbcStoreFactory( const std::string& user, const std::string& password, 
                     const std::string& connectionString )
-: m_user( user ), m_password( password ), m_connectionString( connectionString ),
+  : m_user( user ), m_password( password ), m_connectionString( connectionString ),
   m_useSettings( false ), m_useDictionary( false ) {}
 
   OdbcStoreFactory()
-: m_user( DEFAULT_USER ), m_password( DEFAULT_PASSWORD ),
+  : m_user( DEFAULT_USER ), m_password( DEFAULT_PASSWORD ),
   m_connectionString( DEFAULT_CONNECTION_STRING ), m_useSettings( false ), m_useDictionary( false ) {}
 
-  MessageStore* create( const SessionID& );
+  MessageStore* create( const UtcTimeStamp&, const SessionID& );
   void destroy( MessageStore* );
 private:
-  MessageStore* create( const SessionID& s, const Dictionary& );
+  MessageStore* create( const UtcTimeStamp&, const SessionID& sessionID, const Dictionary& );
 
   Dictionary m_dictionary;
   SessionSettings m_settings;
@@ -81,31 +81,31 @@ private:
 class OdbcStore : public MessageStore
 {
 public:
-  OdbcStore( const SessionID& s, const std::string& user, const std::string& password, 
+  OdbcStore( const UtcTimeStamp& now, const SessionID& sessionID, const std::string& user, const std::string& password, 
              const std::string& connectionString );
   ~OdbcStore();
 
-  bool set( int, const std::string& ) throw ( IOException );
-  void get( int, int, std::vector < std::string > & ) const throw ( IOException );
+  bool set( int, const std::string& ) EXCEPT ( IOException );
+  void get( int, int, std::vector < std::string > & ) const EXCEPT ( IOException );
 
-  int getNextSenderMsgSeqNum() const throw ( IOException );
-  int getNextTargetMsgSeqNum() const throw ( IOException );
-  void setNextSenderMsgSeqNum( int value ) throw ( IOException );
-  void setNextTargetMsgSeqNum( int value ) throw ( IOException );
-  void incrNextSenderMsgSeqNum() throw ( IOException );
-  void incrNextTargetMsgSeqNum() throw ( IOException );
+  int getNextSenderMsgSeqNum() const EXCEPT ( IOException );
+  int getNextTargetMsgSeqNum() const EXCEPT ( IOException );
+  void setNextSenderMsgSeqNum( int value ) EXCEPT ( IOException );
+  void setNextTargetMsgSeqNum( int value ) EXCEPT ( IOException );
+  void incrNextSenderMsgSeqNum() EXCEPT ( IOException );
+  void incrNextTargetMsgSeqNum() EXCEPT ( IOException );
 
-  UtcTimeStamp getCreationTime() const throw ( IOException );
+  UtcTimeStamp getCreationTime() const EXCEPT ( IOException );
 
-  void reset() throw ( IOException );
-  void refresh() throw ( IOException );
+  void reset( const UtcTimeStamp& now ) EXCEPT ( IOException );
+  void refresh() EXCEPT ( IOException );
 
 private:
   void populateCache();
 
-  OdbcConnection* m_pConnection;
   MemoryStore m_cache;
   SessionID m_sessionID;
+  OdbcConnection* m_pConnection;
 };
 }
 

@@ -48,12 +48,12 @@ class Message;
 
 class DataDictionary
 {
-  typedef std::set < int > MsgFields;
-  typedef std::map < std::string, MsgFields > MsgTypeToField;
-  typedef std::set < std::string > MsgTypes;
-  typedef std::set < int > Fields;
-  typedef std::map < int, bool > NonBodyFields;
-  typedef std::vector< int > OrderedFields;
+  typedef std::set<int> MsgFields;
+  typedef std::map<std::string, MsgFields> MsgTypeToField;
+  typedef std::set<std::string> MsgTypes;
+  typedef std::set<int> Fields;
+  typedef std::map<int, bool> NonBodyFields;
+  typedef std::vector<int> OrderedFields;
 
   struct MessageFieldsOrderHolder
   {
@@ -76,8 +76,9 @@ class DataDictionary
       int * tmp = new int[m_orderedFlds.size() + 1];
       int * i = tmp;
 
-      OrderedFields::const_iterator iter;
-      for( iter = m_orderedFlds.begin(); iter != m_orderedFlds.end(); *(i++) = *(iter++) ) {}
+      for( OrderedFields::const_iterator iter = m_orderedFlds.begin(); 
+           iter != m_orderedFlds.end(); 
+           *(i++) = *(iter++) ) {}
       *i = 0;
 
       m_msgOrder = message_order(tmp);
@@ -95,35 +96,35 @@ class DataDictionary
   typedef std::map<std::string, MessageFieldsOrderHolder > MsgTypeToOrderedFields;
 
   typedef message_order OrderedFieldsArray;
-  typedef std::map < int, TYPE::Type > FieldTypes;
-  typedef std::set < std::string > Values;
-  typedef std::map < int, Values > FieldToValue;
-  typedef std::map < int, std::string > FieldToName;
-  typedef std::map < std::string, int > NameToField;
-  typedef std::map < std::pair < int, std::string > , std::string  > ValueToName;
+  typedef std::map<int, TYPE::Type> FieldTypes;
+  typedef std::set<std::string> Values;
+  typedef std::map<int, Values> FieldToValue;
+  typedef std::map<int, std::string> FieldToName;
+  typedef std::map<std::string, int> NameToField;
+  typedef std::map<std::pair<int, std::string>, std::string> ValueToName;
   // while FieldToGroup structure seems to be overcomplicated
   // in reality it yields a lot of performance because:
   // 1) avoids memory copying;
   // 2) first lookup is done by comparing integers and not string objects
   // TODO: use hash_map with good hashing algorithm
-  typedef std::map < std::string, std::pair < int, DataDictionary* > > FieldPresenceMap;
-  typedef std::map < int, FieldPresenceMap > FieldToGroup;
+  typedef std::map <std::string, std::pair<int, DataDictionary*>> FieldPresenceMap;
+  typedef std::map <int, FieldPresenceMap> FieldToGroup;
 
 public:
   DataDictionary();
   DataDictionary( const DataDictionary& copy );
-  DataDictionary(std::istream& stream , bool preserveMsgFldsOrder = false) throw( ConfigError );
-  DataDictionary(const std::string& url , bool preserveMsgFldsOrder = false) throw( ConfigError );
+  DataDictionary(std::istream& stream , bool preserveMsgFldsOrder = false) EXCEPT ( ConfigError );
+  DataDictionary(const std::string& url , bool preserveMsgFldsOrder = false) EXCEPT ( ConfigError );
   virtual ~DataDictionary();
 
-  void readFromURL( const std::string& url ) throw( ConfigError );
-  void readFromDocument( const DOMDocumentPtr &pDoc ) throw( ConfigError );
-  void readFromStream( std::istream& stream ) throw( ConfigError );
+  void readFromURL( const std::string& url ) EXCEPT ( ConfigError );
+  void readFromDocument( const DOMDocumentPtr &pDoc ) EXCEPT ( ConfigError );
+  void readFromStream( std::istream& stream ) EXCEPT ( ConfigError );
 
   message_order const& getOrderedFields() const;
-  message_order const& getHeaderOrderedFields() const throw( ConfigError );
-  message_order const& getTrailerOrderedFields() const throw( ConfigError );
-  message_order const& getMessageOrderedFields(const std::string & msgType) const throw( ConfigError );
+  message_order const& getHeaderOrderedFields() const EXCEPT ( ConfigError );
+  message_order const& getTrailerOrderedFields() const EXCEPT ( ConfigError );
+  message_order const& getMessageOrderedFields(const std::string & msgType) const EXCEPT ( ConfigError );
 
   // storage functions
   void setVersion( const std::string& beginString )
@@ -168,6 +169,7 @@ public:
   void addValueName( int field, const std::string& value, const std::string& name )
   {
     m_valueNames[std::make_pair(field, value)] = name;
+    m_nameValues[std::make_pair(field, name)] = value;
   }
 
   bool getValueName( int field, const std::string& value, std::string& name ) const
@@ -175,6 +177,14 @@ public:
     ValueToName::const_iterator i = m_valueNames.find( std::make_pair(field, value) );
     if(i == m_valueNames.end()) return false;
     name = i->second;
+    return true;
+  }
+
+  bool getNameValue( int field, const std::string& name, std::string& value ) const
+  {
+    ValueToName::const_iterator i = m_nameValues.find(std::make_pair(field, name));
+    if (m_nameValues.end() == i) return false;
+    value = i->second;
     return true;
   }
 
@@ -334,7 +344,7 @@ public:
     FieldPresenceMap::const_iterator iter = presenceMap.find( msg );
     if( iter == presenceMap.end() ) return false;
 
-    std::pair < int, DataDictionary* > pair = iter->second;
+    std::pair<int, DataDictionary*> pair = iter->second;
     delim = pair.first;
     pDataDictionary = pair.second;
     return true;
@@ -371,11 +381,11 @@ public:
   /// Validate a message.
   static void validate( const Message& message,
                         const DataDictionary* const pSessionDD,
-                        const DataDictionary* const pAppID ) throw( FIX::Exception );
+                        const DataDictionary* const pAppID ) EXCEPT ( FIX::Exception );
 
-  void validate( const Message& message ) const throw ( FIX::Exception )
+  void validate( const Message& message ) const EXCEPT ( FIX::Exception )
   { validate( message, false ); }
-  void validate( const Message& message, bool bodyOnly ) const throw( FIX::Exception )
+  void validate( const Message& message, bool bodyOnly ) const EXCEPT ( FIX::Exception )
   { validate( message, bodyOnly ? (DataDictionary*)0 : this, this ); }
 
   DataDictionary& operator=( const DataDictionary& rhs );
@@ -404,14 +414,14 @@ private:
 
   /// Check if field tag number is defined in spec.
   void checkValidTagNumber( const FieldBase& field ) const
-  throw( InvalidTagNumber )
+  EXCEPT ( InvalidTagNumber )
   {
     if( m_fields.find( field.getTag() ) == m_fields.end() )
       throw InvalidTagNumber( field.getTag() );
   }
 
   void checkValidFormat( const FieldBase& field ) const
-  throw( IncorrectDataFormat )
+  EXCEPT ( IncorrectDataFormat )
   {
     try
     {
@@ -445,6 +455,8 @@ private:
         UTCTIMESTAMP_CONVERTOR::convert( field.getString() ); break;
       case TYPE::Boolean:
         BOOLEAN_CONVERTOR::convert( field.getString() ); break;
+      case TYPE::LocalMktTime:
+        LOCALMKTTIME_CONVERTOR::convert( field.getString() ); break;
       case TYPE::LocalMktDate:
         LOCALMKTDATE_CONVERTOR::convert( field.getString() ); break;
       case TYPE::Data:
@@ -467,6 +479,8 @@ private:
         PERCENTAGE_CONVERTOR::convert( field.getString() ); break;
       case TYPE::SeqNum:
         SEQNUM_CONVERTOR::convert( field.getString() ); break;
+      case TYPE::TagNum:
+        TAGNUM_CONVERTOR::convert( field.getString() ); break;
       case TYPE::Length:
         LENGTH_CONVERTOR::convert( field.getString() ); break;
       case TYPE::Country:
@@ -479,6 +493,10 @@ private:
         XMLDATA_CONVERTOR::convert( field.getString() ); break;
       case TYPE::Language:
         LANGUAGE_CONVERTOR::convert( field.getString() ); break;
+      case TYPE::Xid:
+        XID_CONVERTOR::convert( field.getString() ); break;
+      case TYPE::XidRef:
+        XIDREF_CONVERTOR::convert( field.getString() ); break;
       case TYPE::Unknown: break;
       }
     }
@@ -487,7 +505,7 @@ private:
   }
 
   void checkValue( const FieldBase& field ) const
-  throw( IncorrectTagValue )
+  EXCEPT ( IncorrectTagValue )
   {
     if ( !hasFieldValue( field.getTag() ) ) return ;
 
@@ -498,7 +516,7 @@ private:
 
   /// Check if a field has a value.
   void checkHasValue( const FieldBase& field ) const
-  throw( NoTagValue )
+  EXCEPT ( NoTagValue )
   {
     if ( m_checkFieldsHaveValues && !field.getString().length() )
       throw NoTagValue( field.getTag() );
@@ -507,7 +525,7 @@ private:
   /// Check if a field is in this message type.
   void checkIsInMessage
   ( const FieldBase& field, const MsgType& msgType ) const
-  throw( TagNotDefinedForMessage )
+  EXCEPT ( TagNotDefinedForMessage )
   {
     if ( !isMsgField( msgType, field.getTag() ) )
       throw TagNotDefinedForMessage( field.getTag() );
@@ -516,7 +534,7 @@ private:
   /// Check if group count matches number of groups in
   void checkGroupCount
   ( const FieldBase& field, const FieldMap& fieldMap, const MsgType& msgType ) const
-  throw( RepeatingGroupCountMismatch )
+  EXCEPT ( RepeatingGroupCountMismatch )
   {
     int fieldNum = field.getTag();
     if( isGroup(msgType, fieldNum) )
@@ -531,19 +549,18 @@ private:
   void checkHasRequired
   ( const FieldMap& header, const FieldMap& body, const FieldMap& trailer,
     const MsgType& msgType ) const
-  throw( RequiredTagMissing )
+  EXCEPT ( RequiredTagMissing )
   {
-    NonBodyFields::const_iterator iNBF;
-    for( iNBF = m_headerFields.begin(); iNBF != m_headerFields.end(); ++iNBF )
+    for( const NonBodyFields::value_type& NBF : m_headerFields )
     {
-      if( iNBF->second == true && !header.isSetField(iNBF->first) )
-        throw RequiredTagMissing( iNBF->first );
+      if( NBF.second == true && !header.isSetField(NBF.first) )
+        throw RequiredTagMissing( NBF.first );
     }
 
-    for( iNBF = m_trailerFields.begin(); iNBF != m_trailerFields.end(); ++iNBF )
+    for( const NonBodyFields::value_type& NBF : m_trailerFields )
     {
-      if( iNBF->second == true && !trailer.isSetField(iNBF->first) )
-        throw RequiredTagMissing( iNBF->first );
+      if( NBF.second == true && !trailer.isSetField(NBF.first) )
+        throw RequiredTagMissing( NBF.first );
     }
 
     MsgTypeToField::const_iterator iM
@@ -552,23 +569,21 @@ private:
 
     const MsgFields& fields = iM->second;
     MsgFields::const_iterator iF;
-    for( iF = fields.begin(); iF != fields.end(); ++iF )
+    for( const MsgFields::value_type& F : fields )
     {
-      if( !body.isSetField(*iF) )
-        throw RequiredTagMissing( *iF );
+      if( !body.isSetField( F ) )
+        throw RequiredTagMissing( F );
     }
 
-    FieldMap::g_const_iterator groups;
-    for( groups = body.g_begin(); groups != body.g_end(); ++groups )
+    for( FieldMap::g_const_iterator groups = body.g_begin(); groups != body.g_end(); ++groups )
     {
       int delim;
       const DataDictionary* DD = 0;
       int field = groups->first;
       if( getGroup( msgType.getValue(), field, delim, DD ) )
       {
-        std::vector<FieldMap*>::const_iterator group;
-        for( group = groups->second.begin(); group != groups->second.end(); ++group )
-          DD->checkHasRequired( **group, **group, **group, msgType );
+        for( const FieldMap* group : groups->second )
+          DD->checkHasRequired( *group, *group, *group, msgType );
       }
     }
   }
@@ -600,6 +615,7 @@ private:
   FieldToName m_fieldNames;
   NameToField m_names;
   ValueToName m_valueNames;
+  ValueToName m_nameValues;
   FieldToGroup m_groups;
   MsgFields m_dataFields;
   OrderedFields m_headerOrderedFields;

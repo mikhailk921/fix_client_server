@@ -34,6 +34,8 @@
 #include "Exceptions.h"
 #include "Mutex.h"
 #include "Session.h"
+
+#include <atomic>
 #include <set>
 #include <map>
 #include <string>
@@ -52,18 +54,18 @@ class Initiator
 {
 public:
   Initiator( Application&, MessageStoreFactory&,
-             const SessionSettings& ) throw( ConfigError );
+             const SessionSettings& ) EXCEPT ( ConfigError );
   Initiator( Application&, MessageStoreFactory&,
-             const SessionSettings&, LogFactory& ) throw( ConfigError );
+             const SessionSettings&, LogFactory& ) EXCEPT ( ConfigError );
 
   virtual ~Initiator();
 
   /// Start initiator.
-  void start() throw ( ConfigError, RuntimeError );
+  void start() EXCEPT ( ConfigError, RuntimeError );
   /// Block on the initiator
-  void block() throw ( ConfigError, RuntimeError );
+  void block() EXCEPT ( ConfigError, RuntimeError );
   /// Poll the initiator
-  bool poll( double timeout = 0.0 ) throw ( ConfigError, RuntimeError );
+  bool poll() EXCEPT ( ConfigError, RuntimeError );
 
   /// Stop initiator.
   void stop( bool force = false );
@@ -104,16 +106,16 @@ protected:
   void connect();
 
 private:
-  void initialize() throw ( ConfigError );
+  void initialize() EXCEPT ( ConfigError );
 
   /// Implemented to configure acceptor
-  virtual void onConfigure( const SessionSettings& ) throw ( ConfigError ) {};
+  virtual void onConfigure( const SessionSettings& ) EXCEPT ( ConfigError ) {};
   /// Implemented to initialize initiator
-  virtual void onInitialize( const SessionSettings& ) throw ( RuntimeError ) {};
+  virtual void onInitialize( const SessionSettings& ) EXCEPT ( RuntimeError ) {};
   /// Implemented to start connecting to targets.
   virtual void onStart() = 0;
   /// Implemented to connect and poll for events.
-  virtual bool onPoll( double timeout ) = 0;
+  virtual bool onPoll() = 0;
   /// Implemented to stop a running initiator.
   virtual void onStop() = 0;
   /// Implemented to connect a session to its target.
@@ -141,8 +143,9 @@ private:
   LogFactory* m_pLogFactory;
   Log* m_pLog;
   NullLog m_nullLog;
-  bool m_firstPoll;
-  bool m_stop;
+  std::atomic<bool> m_processing;
+  std::atomic<bool> m_firstPoll;
+  std::atomic<bool> m_stop;
   Mutex m_mutex;
 };
 /*! @} */

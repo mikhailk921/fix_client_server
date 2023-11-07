@@ -32,6 +32,7 @@
 #include "SessionID.h"
 #include "DataDictionary.h"
 #include "Values.h"
+
 #include <vector>
 #include <memory>
 
@@ -55,9 +56,9 @@ public:
   void replaceGroup( unsigned num, const FIX::Group& group )
   { FieldMap::replaceGroup( num, group.field(), group ); }
 
-  Group& getGroup( unsigned num, FIX::Group& group ) const throw( FieldNotFound )
+  Group& getGroup( unsigned num, FIX::Group& group ) const EXCEPT ( FieldNotFound )
   { group.clear();
-    return static_cast < Group& >
+    return static_cast<Group&>
       ( FieldMap::getGroup( num, group.field(), group ) );
   }
 
@@ -90,9 +91,9 @@ public:
   void replaceGroup( unsigned num, const FIX::Group& group )
   { FieldMap::replaceGroup( num, group.field(), group ); }
 
-  Group& getGroup( unsigned num, FIX::Group& group ) const throw( FieldNotFound )
+  Group& getGroup( unsigned num, FIX::Group& group ) const EXCEPT ( FieldNotFound )
   { group.clear();
-    return static_cast < Group& >
+    return static_cast<Group&>
       ( FieldMap::getGroup( num, group.field(), group ) );
   }
 
@@ -129,31 +130,44 @@ public:
 
   /// Construct a message from a string
   Message( const std::string& string, bool validate = true )
-  throw( InvalidMessage );
+  EXCEPT ( InvalidMessage );
 
   /// Construct a message from a string using a data dictionary
   Message( const std::string& string, const FIX::DataDictionary& dataDictionary,
            bool validate = true )
-  throw( InvalidMessage );
+  EXCEPT ( InvalidMessage );
 
   /// Construct a message from a string using a session and application data dictionary
   Message( const std::string& string, const FIX::DataDictionary& sessionDataDictionary,
            const FIX::DataDictionary& applicationDataDictionary, bool validate = true )
-  throw( InvalidMessage );
+  EXCEPT ( InvalidMessage );
 
   /// Construct a message from a string using a data dictionary
-  Message( const message_order& hdrOrder, const message_order& trlOrder,  const message_order& order, const std::string& string, const FIX::DataDictionary& dataDictionary,
+  Message( const message_order& headerOrder, 
+           const message_order& trailerOrder,  
+           const message_order& order,
+           const std::string& string, 
+           const FIX::DataDictionary& dataDictionary,
            bool validate = true )
-  throw( InvalidMessage );
+  EXCEPT ( InvalidMessage );
 
   /// Construct a message from a string using a session and application data dictionary
-  Message( const message_order& hdrOrder, const message_order& trlOrder,  const message_order& order, const std::string& string, const FIX::DataDictionary& sessionDataDictionary,
-           const FIX::DataDictionary& applicationDataDictionary, bool validate = true )
-  throw( InvalidMessage );
+  Message( const message_order& headerOrder, 
+           const message_order& trailerOrder,  
+           const message_order& order, 
+           const std::string& string, 
+           const FIX::DataDictionary& sessionDataDictionary,
+           const FIX::DataDictionary& applicationDataDictionary, 
+           bool validate = true )
+  EXCEPT ( InvalidMessage );
 
-  Message( const Message& copy );
+  Message(const Message&) = default;
+  Message(Message&&) = default;
 
   ~Message();
+
+  Message& operator=(const Message&) = default;
+  Message& operator=(Message&&) = default;
 
   /// Set global data dictionary for encoding messages into XML
   static bool InitializeXML( const std::string& string );
@@ -164,9 +178,9 @@ public:
   void replaceGroup( unsigned num, const FIX::Group& group )
   { FieldMap::replaceGroup( num, group.field(), group ); }
 
-  Group& getGroup( unsigned num, FIX::Group& group ) const throw( FieldNotFound )
+  Group& getGroup( unsigned num, FIX::Group& group ) const EXCEPT ( FieldNotFound )
   { group.clear();
-    return static_cast < Group& >
+    return static_cast<Group&>
       ( FieldMap::getGroup( num, group.field(), group ) );
   }
 
@@ -213,22 +227,22 @@ public:
    * on failure.
    */
   void setString( const std::string& string )
-  throw( InvalidMessage )
+  EXCEPT ( InvalidMessage )
   { setString(string, true); }
   void setString( const std::string& string, bool validate )
-  throw( InvalidMessage )
+  EXCEPT ( InvalidMessage )
   { setString(string, validate, 0); }
   void setString( const std::string& string,
                   bool validate,
                   const FIX::DataDictionary* pDataDictionary )
-  throw( InvalidMessage )
+  EXCEPT ( InvalidMessage )
   { setString(string, validate, pDataDictionary, pDataDictionary); }
 
   void setString( const std::string& string,
                   bool validate,
                   const FIX::DataDictionary* pSessionDataDictionary,
                   const FIX::DataDictionary* pApplicationDataDictionary )
-  throw( InvalidMessage );
+  EXCEPT ( InvalidMessage );
 
   void setGroup( const std::string& msg, const FieldBase& field,
                  const std::string& string, std::string::size_type& pos,
@@ -258,7 +272,8 @@ public:
   int bodyLength( int beginStringField = FIELD::BeginString,
                   int bodyLengthField = FIELD::BodyLength,
                   int checkSumField = FIELD::CheckSum ) const
-  { return m_header.calculateLength(beginStringField, bodyLengthField, checkSumField)
+  { 
+    return m_header.calculateLength(beginStringField, bodyLengthField, checkSumField)
            + calculateLength(beginStringField, bodyLengthField, checkSumField)
            + m_trailer.calculateLength(beginStringField, bodyLengthField, checkSumField);
   }
@@ -319,9 +334,9 @@ public:
     if( value == BeginString_FIX50 )
       return ApplVerID(ApplVerID_FIX50);
     if( value == "FIX.5.0SP1" )
-      return ApplVerID(ApplVerID_FIX50SP1);
+      return ApplVerID(ApplVerID_FIX50_SP1);
     if( value == "FIX.5.0SP2" )
-      return ApplVerID(ApplVerID_FIX50SP2);
+      return ApplVerID(ApplVerID_FIX50_SP2);
     return ApplVerID(ApplVerID(value));
   }
 
@@ -339,9 +354,9 @@ public:
       return BeginString(BeginString_FIX44);
     else if( applVerID == ApplVerID_FIX50 )
       return BeginString(BeginString_FIX50);
-    else if( applVerID == ApplVerID_FIX50SP1 )
+    else if( applVerID == ApplVerID_FIX50_SP1 )
       return BeginString(BeginString_FIX50);
-    else if( applVerID == ApplVerID_FIX50SP2 )
+    else if( applVerID == ApplVerID_FIX50_SP2 )
       return BeginString(BeginString_FIX50);
     else
       return BeginString("");
@@ -361,14 +376,9 @@ public:
 
   /// Returns the session ID of the intended recipient
   SessionID getSessionID( const std::string& qualifier = "" ) const
-  throw( FieldNotFound );
+  EXCEPT ( FieldNotFound );
   /// Sets the session ID of the intended recipient
   void setSessionID( const SessionID& sessionID );
-
-#ifdef HAVE_EMX
-  void  setSubMessageType(const std::string & subMsgType) { m_subMsgType.assign(subMsgType); }
-  const std::string & getSubMessageType() const { return m_subMsgType; }
-#endif
 
 private:
   FieldBase extractField(
@@ -398,10 +408,7 @@ protected:
   mutable Trailer m_trailer;
   bool m_validStructure;
   int m_tag;
-#ifdef HAVE_EMX
-  std::string m_subMsgType;
-#endif
-  static SmartPtr<DataDictionary> s_dataDictionary;
+  static std::unique_ptr<DataDictionary> s_dataDictionary;
 };
 /*! @} */
 
@@ -415,7 +422,7 @@ inline std::ostream& operator <<
 
 /// Parse the type of a message from a string.
 inline MsgType identifyType( const std::string& message )
-throw( MessageParseError )
+EXCEPT ( MessageParseError )
 {
   std::string::size_type pos = message.find( "\001" "35=" );
   if ( pos == std::string::npos ) throw MessageParseError();

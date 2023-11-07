@@ -43,7 +43,7 @@ class Session;
 class NullStoreFactory : public MessageStoreFactory
 {
 public:
-  MessageStore* create( const SessionID& );
+  MessageStore* create( const UtcTimeStamp&, const SessionID& );
   void destroy( MessageStore* );
 };
 /*! @} */
@@ -58,35 +58,42 @@ public:
 class NullStore : public MessageStore
 {
 public:
-  NullStore() : m_nextSenderMsgSeqNum( 1 ), m_nextTargetMsgSeqNum( 1 ) {}
+  NullStore( const UtcTimeStamp& now ) 
+  : m_nextSenderMsgSeqNum( 1 )
+  , m_nextTargetMsgSeqNum( 1 ) 
+  , m_creationTime( now )
+  {
 
-  bool set( int, const std::string& ) throw ( IOException );
-  void get( int, int, std::vector < std::string > & ) const throw ( IOException );
+  }
 
-  int getNextSenderMsgSeqNum() const throw ( IOException )
+  bool set( int, const std::string& ) EXCEPT ( IOException );
+  void get( int, int, std::vector<std::string> & ) const EXCEPT ( IOException );
+
+  int getNextSenderMsgSeqNum() const EXCEPT ( IOException )
   { return m_nextSenderMsgSeqNum; }
-  int getNextTargetMsgSeqNum() const throw ( IOException )
+  int getNextTargetMsgSeqNum() const EXCEPT ( IOException )
   { return m_nextTargetMsgSeqNum; }
-  void setNextSenderMsgSeqNum( int value ) throw ( IOException )
+  void setNextSenderMsgSeqNum( int value ) EXCEPT ( IOException )
   { m_nextSenderMsgSeqNum = value; }
-  void setNextTargetMsgSeqNum( int value ) throw ( IOException )
+  void setNextTargetMsgSeqNum( int value ) EXCEPT ( IOException )
   { m_nextTargetMsgSeqNum = value; }
-  void incrNextSenderMsgSeqNum() throw ( IOException )
+  void incrNextSenderMsgSeqNum() EXCEPT ( IOException )
   { ++m_nextSenderMsgSeqNum; }
-  void incrNextTargetMsgSeqNum() throw ( IOException )
+  void incrNextTargetMsgSeqNum() EXCEPT ( IOException )
   { ++m_nextTargetMsgSeqNum; }
 
-  void setCreationTime( const UtcTimeStamp& creationTime ) throw ( IOException )
+  void setCreationTime( const UtcTimeStamp& creationTime ) EXCEPT ( IOException )
   { m_creationTime = creationTime; }
-  UtcTimeStamp getCreationTime() const throw ( IOException )
+  UtcTimeStamp getCreationTime() const EXCEPT ( IOException )
   { return m_creationTime; }
 
-  void reset() throw ( IOException )
+  void reset( const UtcTimeStamp& now ) EXCEPT ( IOException )
   {
-    m_nextSenderMsgSeqNum = 1; m_nextTargetMsgSeqNum = 1;
-    m_creationTime.setCurrent();
+    m_nextSenderMsgSeqNum = 1; 
+    m_nextTargetMsgSeqNum = 1;
+    m_creationTime = now;
   }
-  void refresh() throw ( IOException ) {}
+  void refresh() EXCEPT ( IOException ) {}
 
 private:
   int m_nextSenderMsgSeqNum;

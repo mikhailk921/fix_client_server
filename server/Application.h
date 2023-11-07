@@ -22,19 +22,20 @@ public:
     void onLogon( const FIX::SessionID& sessionID ) override;
     void onLogout( const FIX::SessionID& sessionID ) override;
     void toAdmin( FIX::Message&, const FIX::SessionID& ) override;
-    void toApp( FIX::Message&, const FIX::SessionID& ) throw ( FIX::DoNotSend ) override;
+    void toApp( FIX::Message&, const FIX::SessionID& ) EXCEPT ( FIX::DoNotSend ) override;
 
     void fromAdmin( const FIX::Message&, const FIX::SessionID& )
-    throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon ) override;
+    EXCEPT( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::RejectLogon ) override;
 
     void fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
-    throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
+    EXCEPT ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) override;
 
-    void onMessage( const FIX44::TestRequest& message, const FIX::SessionID& sessionID);
+    void onMessage( const FIX44::TestRequest& message, const FIX::SessionID& sessionID) override;
 
 private:
+    void verifyLogonUser(const FIX::Message& message);
     void replyToTestRequest(const FIX::SessionID& sessionID);
-    bool isUserRegistered(std::string& username, std::string& pass);
+    bool isUserRegistered(const std::string& username, const std::string& pass);
 
     std::map<std::string, std::string> _registrated_users = {
             {"admin", "admin"},

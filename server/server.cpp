@@ -7,15 +7,28 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <csignal>
 
-void wait([[maybe_unused]] std::unique_ptr<FIX::Acceptor>& acceptor) {
+std::atomic<bool> quit(false);
+
+void signal_handler(int) {
+    std::cout << "Exit from server" << std::endl;
+    quit.store(true);
+}
+
+void wait() {
     std::cout << "The server was started" << std::endl;
-    while(true) {
+    while(!quit.load()) {
         FIX::process_sleep(1);
     }
 }
 
 int main(int argc, char** argv) {
+    struct sigaction sa = {};
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = signal_handler;
+    sigfillset(&sa.sa_mask);
+    signal(SIGINT, &signal_handler);
     try {
         std::string config_path;
         if ( argc > 2 ) {
@@ -39,7 +52,7 @@ int main(int argc, char** argv) {
                 new FIX::SocketAcceptor ( serverApplication, storeFactory, settings, logFactory ));
 
         acceptor->start();
-        wait(acceptor);
+        wait();
         acceptor->stop();
 
         return 0;

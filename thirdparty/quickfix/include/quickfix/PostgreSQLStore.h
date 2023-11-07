@@ -19,13 +19,14 @@
 **
 ****************************************************************************/
 
+#ifndef FIX_POSTGRESQLSTORE_H
+#define FIX_POSTGRESQLSTORE_H
+
 #ifndef HAVE_POSTGRESQL
 #error PostgreSQLStore.h included, but HAVE_POSTGRESQL not defined
 #endif
 
 #ifdef HAVE_POSTGRESQL
-#ifndef FIX_POSTGRESQLSTORE_H
-#define FIX_POSTGRESQLSTORE_H
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4503 4355 4786 4290 )
@@ -50,7 +51,7 @@ public:
   static const short DEFAULT_PORT;
 
   PostgreSQLStoreFactory( const SessionSettings& settings )
-: m_settings( settings ), m_useSettings( true ), m_useDictionary( false ) 
+  : m_settings( settings ), m_useSettings( true ), m_useDictionary( false ) 
   {
     bool poolConnections = false;
     try { poolConnections = settings.get().getBool(POSTGRESQL_STORE_USECONNECTIONPOOL); }
@@ -61,7 +62,7 @@ public:
   }
 
   PostgreSQLStoreFactory( const Dictionary& dictionary )
-: m_dictionary( dictionary ), m_useSettings( false ), m_useDictionary( true ) 
+  : m_dictionary( dictionary ), m_useSettings( false ), m_useDictionary( true ) 
   {
     m_connectionPoolPtr = PostgreSQLConnectionPoolPtr
       ( new PostgreSQLConnectionPool(false) );
@@ -70,25 +71,25 @@ public:
   PostgreSQLStoreFactory( const std::string& database, const std::string& user,
                           const std::string& password, const std::string& host,
                           short port )
-: m_database( database ), m_user( user ), m_password( password ), m_host( host ), m_port( port ),
-  m_useSettings( false ), m_useDictionary( false ) 
+  : m_database( database ), m_user( user ), m_password( password ), m_host( host ), m_port( port ),
+    m_useSettings( false ), m_useDictionary( false ) 
   {
     m_connectionPoolPtr = PostgreSQLConnectionPoolPtr
       ( new PostgreSQLConnectionPool(false) );
   }
 
   PostgreSQLStoreFactory()
-: m_database( DEFAULT_DATABASE ), m_user( DEFAULT_USER ), m_password( DEFAULT_PASSWORD ),
-  m_host( DEFAULT_HOST ), m_port( DEFAULT_PORT ), m_useSettings( false ), m_useDictionary( false ) 
+  : m_database( DEFAULT_DATABASE ), m_user( DEFAULT_USER ), m_password( DEFAULT_PASSWORD ),
+    m_host( DEFAULT_HOST ), m_port( DEFAULT_PORT ), m_useSettings( false ), m_useDictionary( false ) 
   {
     m_connectionPoolPtr = PostgreSQLConnectionPoolPtr
       ( new PostgreSQLConnectionPool(false) );
   }
 
-  MessageStore* create( const SessionID& );
+  MessageStore* create( const UtcTimeStamp&, const SessionID& );
   void destroy( MessageStore* );
 private:
-  MessageStore* create( const SessionID& s, const Dictionary& );
+  MessageStore* create( const UtcTimeStamp&, const SessionID&, const Dictionary& );
 
   PostgreSQLConnectionPoolPtr m_connectionPoolPtr;
   SessionSettings m_settings;
@@ -107,25 +108,25 @@ private:
 class PostgreSQLStore : public MessageStore
 {
 public:
-  PostgreSQLStore( const SessionID& s, const DatabaseConnectionID& d, PostgreSQLConnectionPool* p );
-  PostgreSQLStore( const SessionID& s, const std::string& database, const std::string& user,
+  PostgreSQLStore( const UtcTimeStamp& now, const SessionID& sessionID, const DatabaseConnectionID& connection, PostgreSQLConnectionPool* pool );
+  PostgreSQLStore( const UtcTimeStamp& now, const SessionID& sessionID, const std::string& database, const std::string& user,
                    const std::string& password, const std::string& host, short port );
   ~PostgreSQLStore();
 
-  bool set( int, const std::string& ) throw ( IOException );
-  void get( int, int, std::vector < std::string > & ) const throw ( IOException );
+  bool set( int, const std::string& ) EXCEPT ( IOException );
+  void get( int, int, std::vector < std::string > & ) const EXCEPT ( IOException );
 
-  int getNextSenderMsgSeqNum() const throw ( IOException );
-  int getNextTargetMsgSeqNum() const throw ( IOException );
-  void setNextSenderMsgSeqNum( int value ) throw ( IOException );
-  void setNextTargetMsgSeqNum( int value ) throw ( IOException );
-  void incrNextSenderMsgSeqNum() throw ( IOException );
-  void incrNextTargetMsgSeqNum() throw ( IOException );
+  int getNextSenderMsgSeqNum() const EXCEPT ( IOException );
+  int getNextTargetMsgSeqNum() const EXCEPT ( IOException );
+  void setNextSenderMsgSeqNum( int value ) EXCEPT ( IOException );
+  void setNextTargetMsgSeqNum( int value ) EXCEPT ( IOException );
+  void incrNextSenderMsgSeqNum() EXCEPT ( IOException );
+  void incrNextTargetMsgSeqNum() EXCEPT ( IOException );
 
-  UtcTimeStamp getCreationTime() const throw ( IOException );
+  UtcTimeStamp getCreationTime() const EXCEPT ( IOException );
 
-  void reset() throw ( IOException );
-  void refresh() throw ( IOException );
+  void reset( const UtcTimeStamp& now ) EXCEPT ( IOException );
+  void refresh() EXCEPT ( IOException );
 
 private:
   void populateCache();

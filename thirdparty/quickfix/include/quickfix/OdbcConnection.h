@@ -134,7 +134,7 @@ public:
     return m_statement;
   }
 
-  void throwException() throw( IOException )
+  void throwException() EXCEPT ( IOException )
   {
     if( !success() )
       throw IOException( "Query failed [" + m_query + "] " + reason() );
@@ -152,7 +152,7 @@ class OdbcConnection
 public:
   OdbcConnection
   ( const DatabaseConnectionID& id )
-    : m_connection( 0 ), m_environment( 0 ), m_connectionID( id )
+    : m_environment( 0 ), m_connection( 0 ), m_connectionID( id )
   {
     connect();
   }
@@ -160,7 +160,7 @@ public:
   OdbcConnection
   ( const std::string& user, const std::string& password, 
     const std::string& connectionString )
-  : m_connection( 0 ), m_environment( 0 ), m_connectionID( "", user, password, connectionString, 0 )
+  : m_environment( 0 ), m_connection( 0 ), m_connectionID( "", user, password, connectionString, 0 )
   {
     connect();
   }

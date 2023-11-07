@@ -48,13 +48,13 @@ char MyClientApplication::queryAction() {
 }
 
 void MyClientApplication::fromApp( const FIX::Message& message, const FIX::SessionID& sessionID )
-throw ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) {
+EXCEPT ( FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType ) {
     crack( message, sessionID );
     std::cout << std::endl << "IN: " << message << std::endl;
 }
 
 void MyClientApplication::toApp( FIX::Message& message, const FIX::SessionID& sessionID )
-throw( FIX::DoNotSend ) {
+EXCEPT( FIX::DoNotSend ) {
     try {
       FIX::PossDupFlag possDupFlag;
       message.getHeader().getField( possDupFlag );
@@ -80,7 +80,7 @@ void MyClientApplication::sendTestRequest44(const FIX::Session& session) {
 void MyClientApplication::sendTestMessage(FIX::Session& session) {
     const FIX::ClOrdID clOrdID("342");
     const FIX::Side side(FIX::Side_BUY);
-    const FIX::TransactTime transactTime = FIX::UtcTimeStamp();
+    const FIX::TransactTime transactTime = FIX::UtcTimeStamp::now();
     const FIX::OrdType aOrdType(FIX::OrdType_MARKET);
 
     FIX44::NewOrderSingle newOrder(clOrdID, side, transactTime, aOrdType);
