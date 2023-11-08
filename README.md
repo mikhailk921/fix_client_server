@@ -61,4 +61,7 @@ LD_LIBRARY_PATH=./ ./client <path_to_config_file>
 ### Quickfix
 
 The project uses the latest master version of the quickfix library.
-The project uses the pre-built quickfix library. For build, gcc compiler version 9.4.0 was used. The library files are located in: `<project_folder>/thirdparty/quickfix`
+The project uses the pre-built quickfix library.
+For build, `gcc compiler version 9.4.0` was used.
+The library files are located in: `<project_folder>/thirdparty/quickfix`
+Tested on Ubuntu 20.04 and Ubuntu 22.04.
